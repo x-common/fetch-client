@@ -1,6 +1,8 @@
 /**
  * @fileoverview Interceptor pattern for middleware processing
  * @module interceptor
+ * @author API Client Library
+ * @version 1.1.1
  */
 
 import { InterceptorHandler } from "./types";

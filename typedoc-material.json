@@ -1,0 +1,51 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Fetch Client API Documentation",
+  "entryPoints": ["./libs/index.ts"],
+  "out": "./docs-material",
+  "theme": "typedoc-material-theme",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "excludeInternal": true,
+  "readme": "./README.md",
+  "gitRevision": "master",
+  "gitRemote": "origin",
+  "tsconfig": "./tsconfig.json",
+  "categorizeByGroup": true,
+  "defaultCategory": "API",
+  "categoryOrder": [
+    "Core Classes",
+    "Types", 
+    "Constants",
+    "Utilities",
+    "API"
+  ],
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Class",
+    "Constructor",
+    "Property", 
+    "Method",
+    "Function",
+    "Interface",
+    "TypeAlias",
+    "Variable",
+    "Namespace"
+  ],
+  "searchInComments": true,
+  "searchInDocuments": true,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "treatWarningsAsErrors": false,
+  "logLevel": "Info",
+  "cleanOutputDir": true,
+  "emit": "docs",
+  "commentStyle": "jsdoc",
+  "lightHighlightTheme": "material-theme-lighter",
+  "darkHighlightTheme": "material-theme-darker"
+}

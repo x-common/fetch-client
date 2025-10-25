@@ -7,7 +7,7 @@
  * and automatic response parsing.
  * 
  * @author API Client Library
- * @version 1.0.0
+ * @version 1.1.1
  * 
  * Classes included:
  * - ApiError: Enhanced error class with detailed context
@@ -46,10 +46,10 @@ import {
  *   await api.get('/data');
  * } catch (error) {
  *   if (error instanceof ApiError) {
- *     console.log('Error code:', error.code);
- *     console.log('HTTP status:', error.status);
- *     console.log('Is retryable:', error.isRetryable);
- *     console.log('Request URL:', error.request?.url);
+ *     console.log('Error code:', error.code);        // 'NETWORK_ERROR'
+ *     console.log('HTTP status:', error.status);     // 500
+ *     console.log('Can retry:', error.isRetryable);  // true
+ *     console.log('Response:', error.response);      // Full response object
  *   }
  * }
  * ```

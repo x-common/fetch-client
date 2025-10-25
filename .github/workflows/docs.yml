@@ -1,0 +1,153 @@
+name: 📚 Generate and Deploy Documentation
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'libs/**/*.ts'
+      - 'index.ts'
+      - 'README.md'
+      - 'typedoc.json'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'libs/**/*.ts'
+      - 'index.ts'
+      - 'README.md'
+      - 'typedoc.json'
+  workflow_dispatch: # Allow manual trigger
+
+# Sets permissions for GITHUB_TOKEN to deploy to Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Generate documentation
+  generate-docs:
+    name: 📖 Generate Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔧 Generate TypeScript Documentation
+        run: npm run docs:generate
+
+      - name: 📄 Add custom docs README
+        run: |
+          echo "# 📚 Fetch Client API Documentation" > docs/README.md
+          echo "" >> docs/README.md
+          echo "🌐 **Live Documentation**: [https://x-common.github.io/fetch-client](https://x-common.github.io/fetch-client)" >> docs/README.md
+          echo "" >> docs/README.md
+          echo "📖 **Main Documentation**: [API Reference](./index.html)" >> docs/README.md
+
+      - name: 🎨 Add custom styling
+        run: |
+          cat >> docs/assets/style.css << 'EOF'
+          
+          /* Custom styling for fetch-client docs */
+          .tsd-page-title h1::before {
+            content: "🚀 ";
+          }
+          
+          .tsd-navigation a[href="classes/Client.html"]::before {
+            content: "🌐 ";
+          }
+          
+          .tsd-navigation a[href="classes/ApiError.html"]::before {
+            content: "⚠️ ";
+          }
+          
+          .tsd-navigation a[href="classes/Interceptor.html"]::before {
+            content: "🔧 ";
+          }
+          EOF
+
+      - name: ⬆️ Upload documentation artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+
+  # Deploy to GitHub Pages
+  deploy-pages:
+    name: 🚀 Deploy to GitHub Pages
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: generate-docs
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: 🌍 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # Test documentation generation (for PRs)
+  test-docs:
+    name: ✅ Test Documentation
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔧 Test documentation generation
+        run: npm run docs:generate
+
+      - name: ✅ Verify documentation files
+        run: |
+          if [ ! -f "docs/index.html" ]; then
+            echo "❌ Documentation index.html not found!"
+            exit 1
+          fi
+          
+          if [ ! -d "docs/classes" ]; then
+            echo "❌ Documentation classes directory not found!"
+            exit 1
+          fi
+          
+          if [ ! -f "docs/classes/Client.html" ]; then
+            echo "❌ Client documentation not found!"
+            exit 1
+          fi
+          
+          echo "✅ All documentation files generated successfully!"
+
+      - name: 📊 Documentation stats
+        run: |
+          echo "📊 **Documentation Statistics**"
+          echo "- Total files: $(find docs -type f | wc -l)"
+          echo "- HTML files: $(find docs -name "*.html" | wc -l)"
+          echo "- Classes documented: $(find docs/classes -name "*.html" | wc -l)"
+          echo "- Types documented: $(find docs/types -name "*.html" 2>/dev/null | wc -l || echo 0)"
+          echo "- Size: $(du -sh docs | cut -f1)"

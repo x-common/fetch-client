@@ -6,7 +6,7 @@
  * throughout the codebase and can be referenced for customization.
  * 
  * @author API Client Library
- * @version 1.0.0
+ * @version 1.1.1
  */
 
 /**

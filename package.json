@@ -53,6 +53,12 @@
     "build:validate": "node -e \"console.log('CJS:', require('./dist/cjs/index.js')); import('./dist/esm/index.js').then(m => console.log('ESM:', m))\"",
     "dev": "rollup -c --watch",
     "clean": "if exist dist rmdir /s /q dist",
+    "clean:docs": "if exist docs rmdir /s /q docs",
+    "docs": "npm run docs:generate",
+    "docs:generate": "typedoc",
+    "docs:serve": "npm run docs:generate && npx http-server docs -p 8080 -o",
+    "docs:build": "npm run clean:docs && npm run docs:generate",
+    "docs:watch": "typedoc --watch",
     "prepublishOnly": "npm run clean && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -94,8 +100,12 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.3.0",
     "@types/node": "^24.9.1",
+    "http-server": "^14.1.1",
     "rollup": "^4.52.5",
     "rollup-plugin-dts": "^6.2.3",
+    "typedoc": "^0.28.14",
+    "typedoc-material-theme": "^1.4.0",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.9.3"
   }
 }

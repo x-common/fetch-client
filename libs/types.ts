@@ -1,5 +1,8 @@
 /**
  * Type definitions for the API client
+ * 
+ * @author API Client Library
+ * @version 1.1.1
  */
 
 /**

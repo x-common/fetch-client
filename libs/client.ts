@@ -6,7 +6,7 @@
  * retries, timeout handling, and comprehensive error management.
  *
  * @author API Client Library
- * @version 1.0.0
+ * @version 1.1.1
  */
 
 import type {
@@ -94,9 +94,14 @@ export class Client {
     ClientConfig;
 
   /**
-   * Create a new ApiClient instance
+   * Create a new Client instance
    *
    * @param config - Client configuration options
+   * @param config.baseURL - Base URL for all requests (e.g., 'https://api.example.com')
+   * @param config.timeout - Request timeout in milliseconds (default: no timeout)
+   * @param config.headers - Default headers to include in all requests
+   * @param config.retryConfig - Retry configuration for failed requests
+   * @param config.responseType - Default response parsing type ('json', 'text', 'blob', etc.)
    *
    * @description Initializes the HTTP client with the provided configuration.
    * Sets up interceptors and validates the configuration for common issues.
@@ -104,22 +109,27 @@ export class Client {
    * @example
    * ```typescript
    * // Minimal configuration
-   * const api = new ApiClient();
+   * const api = new Client();
    *
    * // Full configuration
-   * const api = new ApiClient({
+   * const api = new Client({
    *   baseURL: 'https://api.example.com',
    *   timeout: 15000,
    *   headers: {
    *     'User-Agent': 'MyApp/1.0',
-   *     'Accept': 'application/json'
+   *     'Accept': 'application/json',
+   *     'Authorization': 'Bearer your-token'
    *   },
-   *   retry: {
-   *     maxRetries: 3,
-   *     delay: 1000
-   *   }
+   *   retryConfig: {
+   *     retries: 3,
+   *     retryDelay: 1000,
+   *     retryCondition: (error) => error.status >= 500
+   *   },
+   *   responseType: 'json'
    * });
    * ```
+   *
+   * @throws {Error} When configuration is invalid (negative timeout, invalid baseURL format)
    */
   constructor(config: ClientConfig = {}) {
     // Ensure headers is always an object
@@ -161,11 +171,35 @@ export class Client {
   // ===============================================================
 
   /**
-   * Sends an HTTP GET request.
+   * Sends an HTTP GET request
    *
-   * @param url - The endpoint path (relative or absolute).
-   * @param options - Optional request options such as headers or query params.
-   * @returns Parsed response data of type `T`.
+   * @template T - The expected response data type
+   * @param url - The endpoint path (relative to baseURL or absolute URL)
+   * @param options - Optional request configuration
+   * @param options.headers - Request-specific headers
+   * @param options.timeout - Request-specific timeout in milliseconds
+   * @param options.responseType - Response parsing type override
+   * @param options.retryConfig - Request-specific retry configuration
+   * 
+   * @returns Promise resolving to parsed response data of type T
+   * 
+   * @throws {ApiError} When the request fails or returns an error status
+   * 
+   * @example
+   * ```typescript
+   * // Simple GET request
+   * const users = await api.get<User[]>('/users');
+   * 
+   * // GET with custom headers
+   * const user = await api.get<User>('/users/123', {
+   *   headers: { 'Cache-Control': 'no-cache' }
+   * });
+   * 
+   * // GET with timeout
+   * const data = await api.get('/slow-endpoint', {
+   *   timeout: 5000
+   * });
+   * ```
    */
   async get<T = unknown>(
     url: string,
@@ -175,12 +209,39 @@ export class Client {
   }
 
   /**
-   * Sends an HTTP POST request.
+   * Sends an HTTP POST request
    *
-   * @param url - The endpoint path.
-   * @param data - Optional request body payload.
-   * @param options - Additional request options.
-   * @returns Parsed response data of type `T`.
+   * @template T - The expected response data type
+   * @param url - The endpoint path (relative to baseURL or absolute URL)
+   * @param data - Request body payload (JSON object, FormData, string, etc.)
+   * @param options - Optional request configuration
+   * @param options.headers - Request-specific headers  
+   * @param options.timeout - Request-specific timeout in milliseconds
+   * @param options.responseType - Response parsing type override
+   * @param options.retryConfig - Request-specific retry configuration
+   * 
+   * @returns Promise resolving to parsed response data of type T
+   * 
+   * @throws {ApiError} When the request fails or returns an error status
+   * 
+   * @example
+   * ```typescript
+   * // POST JSON data
+   * const newUser = await api.post<User>('/users', {
+   *   name: 'John Doe',
+   *   email: 'john@example.com'
+   * });
+   * 
+   * // POST FormData
+   * const formData = new FormData();
+   * formData.append('file', file);
+   * const result = await api.post('/upload', formData);
+   * 
+   * // POST with custom headers
+   * const response = await api.post('/webhook', payload, {
+   *   headers: { 'X-Webhook-Secret': secret }
+   * });
+   * ```
    */
   async post<T = unknown>(
     url: string,
@@ -191,12 +252,27 @@ export class Client {
   }
 
   /**
-   * Sends an HTTP PUT request.
+   * Sends an HTTP PUT request
    *
-   * @param url - The endpoint path.
-   * @param data - Optional request body payload.
-   * @param options - Additional request options.
-   * @returns Parsed response data of type `T`.
+   * @template T - The expected response data type
+   * @param url - The endpoint path (relative to baseURL or absolute URL)
+   * @param data - Request body payload for updating the entire resource
+   * @param options - Optional request configuration
+   * 
+   * @returns Promise resolving to parsed response data of type T
+   * 
+   * @throws {ApiError} When the request fails or returns an error status
+   * 
+   * @example
+   * ```typescript
+   * // Update entire user resource
+   * const updatedUser = await api.put<User>('/users/123', {
+   *   id: 123,
+   *   name: 'Jane Doe',
+   *   email: 'jane@example.com',
+   *   status: 'active'
+   * });
+   * ```
    */
   async put<T = unknown>(
     url: string,
@@ -207,12 +283,24 @@ export class Client {
   }
 
   /**
-   * Sends an HTTP PATCH request.
+   * Sends an HTTP PATCH request
    *
-   * @param url - The endpoint path.
-   * @param data - Partial payload to update the resource.
-   * @param options - Additional request options.
-   * @returns Parsed response data of type `T`.
+   * @template T - The expected response data type  
+   * @param url - The endpoint path (relative to baseURL or absolute URL)
+   * @param data - Partial payload to update specific fields of the resource
+   * @param options - Optional request configuration
+   * 
+   * @returns Promise resolving to parsed response data of type T
+   * 
+   * @throws {ApiError} When the request fails or returns an error status
+   * 
+   * @example
+   * ```typescript
+   * // Partial update of user
+   * const user = await api.patch<User>('/users/123', {
+   *   name: 'Updated Name'  // Only update the name field
+   * });
+   * ```
    */
   async patch<T = unknown>(
     url: string,
@@ -223,11 +311,24 @@ export class Client {
   }
 
   /**
-   * Sends an HTTP DELETE request.
+   * Sends an HTTP DELETE request
    *
-   * @param url - The endpoint path.
-   * @param options - Additional request options.
-   * @returns Parsed response data of type `T`.
+   * @template T - The expected response data type (often void or deletion confirmation)
+   * @param url - The endpoint path (relative to baseURL or absolute URL)
+   * @param options - Optional request configuration
+   * 
+   * @returns Promise resolving to parsed response data of type T
+   * 
+   * @throws {ApiError} When the request fails or returns an error status
+   * 
+   * @example
+   * ```typescript
+   * // Delete a user
+   * await api.delete('/users/123');
+   * 
+   * // Delete with confirmation response
+   * const result = await api.delete<{success: boolean}>('/users/123');
+   * ```
    */
   async delete<T = unknown>(
     url: string,

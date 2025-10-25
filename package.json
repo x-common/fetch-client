@@ -1,18 +1,57 @@
 {
   "name": "@x-common/fetch-client",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "A lightweight TypeScript API client using native fetch API as an alternative to axios",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "browser": "dist/browser/index.esm.js",
+  "unpkg": "dist/browser/index.umd.min.js",
+  "jsdelivr": "dist/browser/index.umd.min.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "browser": {
+        "import": "./dist/browser/index.esm.js",
+        "require": "./dist/browser/index.umd.js"
+      },
+      "node": {
+        "import": {
+          "types": "./dist/esm/index.d.ts",
+          "default": "./dist/esm/index.js"
+        },
+        "require": {
+          "types": "./dist/cjs/index.d.ts",
+          "default": "./dist/cjs/index.js"
+        }
+      },
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
+  "sideEffects": false,
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "rollup -c && npm run build:browser",
+    "build:node": "rollup -c",
+    "build:browser": "rollup -c rollup.config.browser.js",
+    "build:watch": "rollup -c --watch",
+    "build:legacy": "npm run build:cjs && npm run build:esm && npm run build:setup",
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "build:esm": "tsc --project tsconfig.esm.json",
+    "build:setup": "echo {\"type\":\"commonjs\"} > dist/cjs/package.json && echo {\"type\":\"module\"} > dist/esm/package.json",
+    "build:validate": "node -e \"console.log('CJS:', require('./dist/cjs/index.js')); import('./dist/esm/index.js').then(m => console.log('ESM:', m))\"",
+    "dev": "rollup -c --watch",
     "clean": "if exist dist rmdir /s /q dist",
     "prepublishOnly": "npm run clean && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -27,7 +66,11 @@
     "rest-client",
     "http-client",
     "interceptor",
-    "typescript-client"
+    "typescript-client",
+    "esm",
+    "commonjs",
+    "dual-package",
+    "tree-shaking"
   ],
   "author": "TieuCV <tamthatdao@gmail.com>",
   "license": "MIT",
@@ -42,8 +85,17 @@
   "engines": {
     "node": ">=16.0.0"
   },
+  "dependencies": {
+    "tslib": "^2.8.1"
+  },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.9",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@types/node": "^24.9.1",
+    "rollup": "^4.52.5",
+    "rollup-plugin-dts": "^6.2.3",
     "typescript": "^5.9.3"
   }
 }

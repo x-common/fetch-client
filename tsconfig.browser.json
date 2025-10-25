@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2018",
+    "lib": ["ES2018", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "declaration": false,
+    "declarationMap": false,
+    "importHelpers": false,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "examples",
+  ]
+}

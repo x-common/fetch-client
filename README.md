@@ -55,6 +55,68 @@ yarn add @x-common/fetch-client
 pnpm add @x-common/fetch-client
 ```
 
+## Module Support
+
+This package supports **ESM**, **CommonJS**, and **Browser** environments:
+
+### ESM (Recommended)
+```typescript
+import { Client, HTTP_STATUS } from '@x-common/fetch-client';
+import type { RequestConfig } from '@x-common/fetch-client';
+```
+
+### CommonJS
+```javascript
+const { Client, HTTP_STATUS } = require('@x-common/fetch-client');
+```
+
+### Browser (CDN)
+```html
+<!-- For modern browsers (ESM) -->
+<script type="module">
+  import { Client } from 'https://unpkg.com/@x-common/fetch-client/dist/browser/index.esm.min.js';
+  const api = new Client({ baseURL: 'https://api.example.com' });
+</script>
+
+<!-- For older browsers (UMD) -->
+<script src="https://unpkg.com/@x-common/fetch-client/dist/browser/index.umd.min.js"></script>
+<script>
+  const { Client } = FetchClient;
+  const api = new Client({ baseURL: 'https://api.example.com' });
+</script>
+```
+
+### Framework Integration
+
+**React/Next.js:**
+```typescript
+import { Client } from '@x-common/fetch-client';
+
+const api = new Client({ baseURL: process.env.NEXT_PUBLIC_API_URL });
+```
+
+**Vue/Nuxt:**
+```typescript
+import { Client } from '@x-common/fetch-client';
+
+export const $api = new Client({ baseURL: useRuntimeConfig().public.apiBase });
+```
+
+**Angular:**
+```typescript
+import { Injectable } from '@angular/core';
+import { Client } from '@x-common/fetch-client';
+
+@Injectable({ providedIn: 'root' })
+export class ApiService extends Client {
+  constructor() {
+    super({ baseURL: environment.apiUrl });
+  }
+}
+```
+
+The package automatically resolves to the correct module format based on your environment.
+
 ## Quick Start
 
 ### Basic Usage

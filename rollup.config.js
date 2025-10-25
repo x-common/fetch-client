@@ -27,14 +27,15 @@ const basePlugins = [
 ];
 
 // TypeScript plugin configurations
-const createTsPlugin = (tsconfig) => typescript({
+const createTsPlugin = (tsconfig, generateDeclarations = false) => typescript({
   tsconfig,
-  declaration: false,
-  declarationMap: false
+  declaration: generateDeclarations,
+  declarationMap: generateDeclarations,
+  sourceMap: true
 });
 
 export default [
-  // ESM Build
+  // ESM Build (JavaScript + Types)
   {
     input: 'index.ts',
     output: {
@@ -46,13 +47,13 @@ export default [
     },
     plugins: [
       ...basePlugins,
-      createTsPlugin('./tsconfig.esm.json'),
+      createTsPlugin('./tsconfig.esm.json', true),
       createPackageJson('module')
     ],
     external: ['tslib']
   },
   
-  // CommonJS Build
+  // CommonJS Build (JavaScript + Types)
   {
     input: 'index.ts',
     output: {
@@ -65,41 +66,9 @@ export default [
     },
     plugins: [
       ...basePlugins,
-      createTsPlugin('./tsconfig.cjs.json'),
+      createTsPlugin('./tsconfig.cjs.json', true),
       createPackageJson('commonjs')
     ],
     external: ['tslib']
-  },
-  
-  // ESM Type Definitions
-  {
-    input: 'index.ts',
-    output: {
-      dir: 'dist/esm',
-      format: 'esm',
-      preserveModules: true,
-      preserveModulesRoot: '.'
-    },
-    plugins: [
-      dts({
-        tsconfig: './tsconfig.esm.json'
-      })
-    ]
-  },
-  
-  // CommonJS Type Definitions
-  {
-    input: 'index.ts',
-    output: {
-      dir: 'dist/cjs',
-      format: 'cjs',
-      preserveModules: true,
-      preserveModulesRoot: '.'
-    },
-    plugins: [
-      dts({
-        tsconfig: './tsconfig.cjs.json'
-      })
-    ]
   }
 ];

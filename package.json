@@ -1,0 +1,49 @@
+{
+  "name": "@x-common/fetch-client",
+  "version": "1.0.1",
+  "description": "A lightweight TypeScript API client using native fetch API as an alternative to axios",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "if exist dist rmdir /s /q dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "api-client",
+    "fetch-client",
+    "fetch",
+    "http",
+    "typescript",
+    "axios-alternative",
+    "rest-client",
+    "http-client",
+    "interceptor",
+    "typescript-client"
+  ],
+  "author": "TieuCV <tamthatdao@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/x-common/fetch-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/x-common/fetch-client/issues"
+  },
+  "homepage": "https://github.com/x-common/fetch-client#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,86 @@
+# NPM Ignore File
+# Specifies files and directories that should not be included when publishing to NPM
+
+# Development files
+*.log
+*.tmp
+*.temp
+
+# Source TypeScript files (we publish compiled JS)
+/libs/
+/src/
+index.ts
+test.ts
+examples/
+
+# Development and build artifacts
+node_modules/
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git files
+.git/
+.gitignore
+
+# Documentation (keep README.md but exclude others)
+DOCUMENTATION.md
+/docs/
+*.md
+!README.md
+!LICENSE
+
+# Configuration files
+.eslintrc*
+.prettierrc*
+tsconfig*.json
+jest.config.*
+.babelrc*
+
+# Testing
+/test/
+/tests/
+__tests__/
+*.test.*
+*.spec.*
+coverage/
+.nyc_output/
+
+# Scripts and development tools
+publish.sh
+build.sh
+scripts/
+
+# Environment files
+.env*
+
+# Package lock files (let users choose their package manager)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build directories that we don't want to publish
+/build/
+/tmp/
+/temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Only include what we want:
+# - dist/ (compiled output)
+# - package.json
+# - README.md
+# - LICENSE
